@@ -1,0 +1,2 @@
+# FileTransferBaseNetty
+基于netty支持下载和上传的文件服务器
