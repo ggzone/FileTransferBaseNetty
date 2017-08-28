@@ -1,0 +1,14 @@
+<assembly schemaLocation="http://maven.apache.org/xsd/assembly-1.0.0.xsd">
+    <id>jar-with-dependencies</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <baseDirectory>/</baseDirectory>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <unpack>true</unpack>
+        </dependencySet>
+    </dependencySets>
+</assembly>

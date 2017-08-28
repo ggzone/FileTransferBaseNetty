@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -10,23 +10,211 @@
 
 
     <properties>
+        <junit.version>4.12</junit.version>
+        <commons-lang3.version>3.4</commons-lang3.version>
+        <netty.version>4.1.14.Final</netty.version>
+        <guava.version>19.0</guava.version>
+        <log4j2.version>2.7</log4j2.version>
+        <slf4j-impl.version>2.8.2</slf4j-impl.version>
+        <java.utils>1.0</java.utils>
+        <resource.targetpath>${project.build.directory}/conf</resource.targetpath>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 
     <dependencies>
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${slf4j-impl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.6.Final</version>
+            <version>${netty.version}</version>
         </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
-        </dependency>
-
     </dependencies>
 
+    <build>
+        <!--开启资源文件的属性过滤-->
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!--不把配置文件打入jar包，因为此时文件已经被拷贝到target/classes文件夹中-->
+                        <exclude>**/*.properties</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                    <maxmem>1024m</maxmem>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-Xlint:all,-serial,-path</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!--不把配置文件打入jar包，因为此时文件已经被拷贝到target/classes文件夹中-->
+                        <exclude>**/*.properties</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- 在default生命周期的 validate阶段就执行resources插件的copy-resources目标 -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 指定resources插件处理资源文件到哪个目录下 -->
+                            <outputDirectory>${resource.targetpath}</outputDirectory>
+                            <!--  也可以用下面这样的方式（指定相对url的方式指定outputDirectory）
+                                <outputDirectory>target/classes</outputDirectory>
+                                 -->
+                            <!-- 待处理的资源定义 -->
+                            <resources>
+                                <resource>
+                                    <!-- 指定resources插件处理哪个目录下的资源文件 -->
+                                    <directory>src/main/resources</directory>
+                                    <!-- 指定不需要处理的资源
+                                        <excludes>
+                                          <exclude>WEB-INF/*.*</exclude>
+                                        </excludes>
+                                        -->
+                                    <!-- 是否对待处理的资源开启过滤模式 (resources插件的copy-resources目标也有资源过滤的功能，这里配置的
+                                    这个功能的效果跟<build><resources><resource>下配置的资源过滤是一样的，只不过可能执行的阶段不一样，
+                                    这里执行的阶段是插件指定的validate阶段，<build><resources><resource>下的配置将是在resources插件的resources目标执行时起作用（在process-resources阶段）)-->
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!--命令行执行：mvn dependency:copy-dependencies  -pl bdproxy-taskscheduler-->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <!--会去下载所有依赖的source jar-->
+                    <!--<execution>-->
+                    <!--<id>install</id>-->
+                    <!--<phase>install</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>sources</goal>-->
+                    <!--</goals>-->
+                    <!--</execution>-->
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                    <!--是否排除传递依赖的包-->
+                    <excludeTransitive>false</excludeTransitive>
+                    <!--是否去掉jar包名中的版本信息-->
+                    <stripVersion>false</stripVersion>
+
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                    <!--<archive>-->
+                        <!--<manifest>-->
+                            <!--<mainClass>si.job.StartUp</mainClass>-->
+                        <!--</manifest>-->
+                    <!--</archive>-->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
