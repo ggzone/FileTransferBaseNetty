@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--设置log4j2的自身log级别为warn-->
+<!--检测修改配置文件和重新配置本身de间隔秒数-->
+<configuration status="Warn" monitorInterval="30">
+    <Properties>
+        <property name="pro1">value1</property>
+    </Properties>
+
+    <appenders>
+        <console name="Console" target="SYSTEM_OUT">
+            <!--日志输出的格式-->
+            <!--
+                %d{yyyy-MM-dd HH:mm:ss, SSS} : 日志生产时间,输出到毫秒的时间
+                %-5level : 输出日志级别，-5表示左对齐并且固定输出5个字符，如果不足在右边补0
+                %c : logger的名称(%logger)
+                %t : 输出当前线程名称
+                %p : 日志输出格式
+                %m : 日志内容，即 logger.info("message")
+                %n : 换行符
+                %C : Java类名(%F)
+                %L : 行号
+                %M : 方法名
+                %l : 输出语句所在的行数, 包括类名、方法名、文件名、行数
+                hostName : 本地机器名
+                hostAddress : 本地ip地址
+             -->
+
+            <PatternLayout pattern="[%d{HH:mm:ss:SSS}] [%p] - %l - -%m%n"/>
+            <!--控制台只输出level及其以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <!--<ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>-->
+        </console>
+
+
+    </appenders>
+
+    <loggers>
+        <!--过滤掉spring和hibernate的一些无用的debug信息-->
+        <!--<logger name="org.springframework" level="INFO"/>-->
+
+        <root level="debug" additivity="false">
+            <appender-ref ref="Console"/>
+        </root>
+
+    </loggers>
+
+</configuration>
